@@ -156,3 +156,113 @@ curl -X POST http://localhost:8080/api/v1/user/login
            "password": "secret123"
          }'
 ```
+
+# User Profile Endpoint Documentation
+
+## Endpoint
+
+**GET** `/api/v1/user/profile`
+
+## Description
+
+This endpoint retrieves the profile of the authenticated user. It requires a valid JWT token.
+
+## Request Headers
+
+The request must include a valid JWT token in the `Authorization` header or as a `cookie`.
+
+## Responses
+
+### Success Response
+
+- **200 OK**
+
+  - **Description:** User profile retrieved successfully.
+  - **Response Body:** Returns a JSON object with the user's data.
+
+  ```json
+  {
+    "_id": "user_id",
+    "fullName": {
+      "firstName": "John",
+      "lastName": "Doe"
+    },
+    "email": "john.doe@example.com"
+  }
+  ```
+
+### Error Responses
+
+- **401 Unauthorized**
+
+  - **Description:** User is not authorized.
+  - **Response Body:** Returns a JSON object with an error message.
+
+  ```json
+  {
+    "message": "You are not authorized"
+  }
+  ```
+
+- **404 Not Found**
+
+  - **Description:** User not found.
+  - **Response Body:** Returns a JSON object with an error message.
+
+  ```json
+  {
+    "message": "User not found"
+  }
+  ```
+
+## Example Request
+
+```bash
+curl -X GET http://localhost:8080/api/v1/user/profile
+ -H "Authorization: Bearer jwt_token_string"
+```
+
+# User Logout Endpoint Documentation
+
+## Endpoint
+
+**GET** `/api/v1/user/logout`
+
+## Description
+
+This endpoint logs out the authenticated user by invalidating the JWT token. The token is added to a blacklist to prevent further use.
+
+## Request Headers
+
+The request must include a valid JWT token in the `Authorization` header or as a `cookie`.
+
+## Responses
+
+- **200 OK**
+
+  - **Description:** User logged out successfully.
+  - **Response Body:** Returns a success message.
+
+  ```json
+  {
+    "message": "User logged out"
+  }
+  ```
+
+- **401 Unauthorized**
+
+  - **Description:** User is not authorized.
+  - **Response Body:** Returns a JSON object with an error message.
+
+  ```json
+  {
+    "message": "You are not authorized"
+  }
+  ```
+
+## Example Request
+
+```bash
+curl -X GET http://localhost:8080/api/v1/user/logout
+ -H "Authorization: Bearer jwt_token_string"
+```
