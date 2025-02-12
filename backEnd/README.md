@@ -266,3 +266,128 @@ The request must include a valid JWT token in the `Authorization` header or as a
 curl -X GET http://localhost:8080/api/v1/user/logout
  -H "Authorization: Bearer jwt_token_string"
 ```
+
+# Captain Registration Endpoint Documentation
+
+## Endpoint
+
+**POST** `/api/v1/captain/register`
+
+## Description
+
+This endpoint registers a new captain. It validates the input data, checks if the captain already exists, creates the captain, and returns a JWT token.
+
+## Request Body
+
+The request body must be a JSON object with the following structure:
+
+```json
+{
+  "fullName": {
+    "firstName": "string", // required, at least 3 characters
+    "lastName": "string" // optional
+  },
+  "email": "captain@example.com", // required, must be a valid email address
+  "password": "string", // required, minimum of 6 characters
+  "vehicle": {
+    "color": "string", // required, at least 3 characters
+    "plate": "string", // required, at least 3 characters
+    "capacity": 1, // required, minimum of 1
+    "vehicleType": "car" // required, must be one of: car, motorcycle, auto
+  }
+}
+```
+
+## Response
+
+### Success Response
+
+```json
+{
+  "token": "jwt_token_string",
+  "newCaptain": {
+    "_id": "captain_id",
+    "fullName": {
+      "firstName": "John",
+      "lastName": "Doe"
+    },
+    "email": "john.doe@example.com",
+    "vehicle": {
+      "color": "red",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+### Error Response
+
+- **400 Bad Request**
+- **Description:** The request failed due to validation errors (e.g., invalid email, insufficient password length, etc.) or if the captain already exists.
+- **Response Body:** Returns an error message and an array of detailed validation errors if applicable.
+
+```json
+{
+  "message": "Captain already exists"
+}
+// or
+{
+  "errors": [
+    {
+      "msg": "Invalid email",
+      "param": "email",
+      "location": "body"
+    },
+    {
+      "msg": "First name must be at least 3 characters",
+      "param": "fullName.firstName",
+      "location": "body"
+    },
+    {
+      "msg": "Password must be at least 6 characters",
+      "param": "password",
+      "location": "body"
+    },
+    {
+      "msg": "Vehicle color must be at least 3 characters",
+      "param": "vehicle.color",
+      "location": "body"
+    },
+    {
+      "msg": "Vehicle plate must be at least 3 characters",
+      "param": "vehicle.plate",
+      "location": "body"
+    },
+    {
+      "msg": "Capacity must be at least 1",
+      "param": "vehicle.capacity",
+      "location": "body"
+    },
+    {
+      "msg": "Vehicle type must be one of: car, motorcycle, auto",
+      "param": "vehicle.vehicleType",
+      "location": "body"
+    }
+  ]
+}
+```
+
+## Example Request
+
+```bash
+curl -X POST http://localhost:8080/api/v1/captain/register
+     -H "Content-Type: application/json"
+     -d '{
+           "fullName": { "firstName": "John", "lastName": "Doe" },
+           "email": "john.doe@example.com",
+           "password": "secret123",
+           "vehicle": {
+             "color": "red",
+             "plate": "ABC123",
+             "capacity": 4,
+             "vehicleType": "car"
+           }
+         }'
+```

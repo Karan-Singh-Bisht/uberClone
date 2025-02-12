@@ -12,11 +12,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const userRouter = require("./routes/user.routes");
+const captainRouter = require("./routes/captain.routes");
 
 app.use("/api/v1/user", userRouter);
-
-app.get("/", (req, res) => {
-  res.send("Hello, World!");
-});
+app.use("/api/v1/captain", captainRouter);
 
 module.exports = app;
