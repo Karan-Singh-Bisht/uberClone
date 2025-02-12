@@ -391,3 +391,126 @@ curl -X POST http://localhost:8080/api/v1/captain/register
            }
          }'
 ```
+
+# Captain Profile Endpoint Documentation
+
+## Endpoint
+
+**GET** `/api/v1/captain/profile`
+
+## Description
+
+This endpoint retrieves the profile of the authenticated captain. It requires a valid JWT token.
+
+## Request Headers
+
+The request must include a valid JWT token in the `Authorization` header or as a `cookie`.
+
+## Responses
+
+### Success Response
+
+- **200 OK**
+
+  - **Description:** Captain profile retrieved successfully.
+  - **Response Body:** Returns a JSON object with the captain's data.
+
+  ```json
+  {
+    "captain": {
+      "_id": "captain_id",
+      "fullName": {
+        "firstName": "John",
+        "lastName": "Doe"
+      },
+      "email": "john.doe@example.com",
+      "status": "inactive",
+      "vehicle": {
+        "color": "red",
+        "plate": "ABC123",
+        "capacity": 4,
+        "vehicleType": "car"
+      },
+      "location": {
+        "lat": 12.345678,
+        "lng": 98.765432
+      }
+    }
+  }
+  ```
+
+### Error Responses
+
+- **401 Unauthorized**
+
+  - **Description:** User is not authorized.
+  - **Response Body:** Returns a JSON object with an error message.
+
+  ```json
+  {
+    "message": "You are not authorized"
+  }
+  ```
+
+- **404 Not Found**
+
+  - **Description:** Captain not found.
+  - **Response Body:** Returns a JSON object with an error message.
+
+  ```json
+  {
+    "message": "Captain not found"
+  }
+  ```
+
+## Example Request
+
+```bash
+curl -X GET http://localhost:8080/api/v1/captain/profile \
+ -H "Authorization: Bearer jwt_token_string"
+```
+
+# Captain Logout Endpoint Documentation
+
+## Endpoint
+
+**GET** `/api/v1/captain/logout`
+
+## Description
+
+This endpoint logs out the authenticated captain by invalidating the JWT token. The token is added to a blacklist to prevent further use.
+
+## Request Headers
+
+The request must include a valid JWT token in the `Authorization` header or as a `cookie`.
+
+## Responses
+
+- **200 OK**
+
+  - **Description:** Captain logged out successfully.
+  - **Response Body:** Returns a success message.
+
+  ```json
+  {
+    "message": "Captain logged out"
+  }
+  ```
+
+- **401 Unauthorized**
+
+  - **Description:** User is not authorized.
+  - **Response Body:** Returns a JSON object with an error message.
+
+  ```json
+  {
+    "message": "You are not authorized"
+  }
+  ```
+
+## Example Request
+
+```bash
+curl -X GET http://localhost:8080/api/v1/captain/logout \
+ -H "Authorization: Bearer jwt_token_string"
+```
