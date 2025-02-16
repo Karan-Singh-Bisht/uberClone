@@ -1,24 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { loginCaptain } from "../state/Auth/captainAuthSlice";
 
 const CaptainLoginPage = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [captainData, setCaptainData] = useState({});
+  // const [captainData, setCaptainData] = useState({});
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setCaptainData({
+    const captain = {
       email: email,
       password: password,
-    });
+    };
+    const response = await dispatch(loginCaptain(captain));
+    if (response.meta.requestStatus === "fulfilled") {
+      navigate("/captain-home");
+    }
     setEmail("");
     setPassword("");
   };
 
-  useEffect(() => {
-    console.log(captainData);
-  }, [captainData]);
   return (
     <div>
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4">

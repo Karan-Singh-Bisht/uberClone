@@ -1,24 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../state/Auth/userAuthSlice";
 
 const UserLoginPage = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [userData, setUserData] = useState({});
+  // const [userData, setUserData] = useState({});
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setUserData({
+    const user = {
       email: email,
       password: password,
-    });
+    };
+
+    const response = await dispatch(loginUser(user));
+    if (response.meta.requestStatus === "fulfilled") {
+      // setUserData(response.payload.userData);
+      navigate("/home");
+    }
+
     setEmail("");
     setPassword("");
   };
-
-  useEffect(() => {
-    console.log(userData);
-  }, [userData]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4">
@@ -31,7 +39,7 @@ const UserLoginPage = () => {
 
       {/* Login Form */}
       <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full sm:w-96">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => handleSubmit(e)}>
           <h3 className="text-xl mb-2">What's your email?</h3>
           <input
             required

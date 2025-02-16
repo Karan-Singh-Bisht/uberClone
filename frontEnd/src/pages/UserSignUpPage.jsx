@@ -1,32 +1,38 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { registerUser } from "../state/Auth/userAuthSlice";
 
 const UserSignUpPage = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [userData, setUserData] = useState({});
-  const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  // const [userData, setUserData] = useState({});
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setUserData({
+    const newUser = {
       fullName: {
-        firstName: firstName,
-        lastName: lastName,
+        firstName,
+        lastName,
       },
-      email: email,
-      password: password,
-    });
+      email,
+      password,
+    };
+    const response = await dispatch(registerUser(newUser));
+    if (response.meta.requestStatus === "fulfilled") {
+      // setUserData(response.payload.newUser);
+      navigate("/home");
+    }
     setEmail("");
     setPassword("");
     setFirstName("");
     setLastName("");
   };
-
-  useEffect(() => {
-    console.log(userData);
-  }, [userData]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-6 sm:px-10">
