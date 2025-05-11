@@ -514,3 +514,211 @@ The request must include a valid JWT token in the `Authorization` header or as a
 curl -X GET http://localhost:8080/api/v1/captain/logout \
  -H "Authorization: Bearer jwt_token_string"
 ```
+
+# Map Routes Documentation
+
+## 1. Get Address Coordinates
+
+### Endpoint
+
+**GET** `/api/v1/maps/getAddressCoordinates`
+
+### Description
+
+This endpoint retrieves the latitude and longitude of a given address.
+
+### Request Query Parameters
+
+- **address** (string, required): The address for which coordinates are needed. Must be at least 3 characters long.
+
+### Request Headers
+
+- **Authorization**: A valid JWT token is required in the `Authorization` header or as a cookie.
+
+### Responses
+
+- **200 OK**
+
+  - **Description:** Coordinates retrieved successfully.
+  - **Response Body:**
+    ```json
+    {
+      "lat": 37.7749,
+      "lng": -122.4194
+    }
+    ```
+
+- **400 Bad Request**
+
+  - **Description:** Validation error for the `address` parameter.
+  - **Response Body:**
+    ```json
+    {
+      "errors": [
+        {
+          "msg": "Invalid value",
+          "param": "address",
+          "location": "query"
+        }
+      ]
+    }
+    ```
+
+- **500 Internal Server Error**
+  - **Description:** An error occurred while fetching the coordinates.
+  - **Response Body:**
+    ```json
+    {
+      "message": "Error in map controller",
+      "err": "Error details"
+    }
+    ```
+
+### Example Request
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/maps/getAddressCoordinates?address=San Francisco" \
+     -H "Authorization: Bearer jwt_token_string"
+```
+
+## 2. Get Distance and Time
+
+### Endpoint
+
+**GET** `/api/v1/maps/getDistanceTime`
+
+### Description
+
+This endpoint calculates the distance and estimated travel time between two locations.
+
+### Request Query Parameters
+
+- **origin** (string, required): The starting address. Must be at least 3 characters long.
+- **destination** (string, required): The destination address. Must be at least 3 characters long.
+
+### Request Headers
+
+- **Authorization**: A valid JWT token is required in the `Authorization` header or as a cookie.
+
+### Responses
+
+- **200 OK**
+
+  - **Description:** Distance and time retrieved successfully.
+  - **Response Body:**
+    ```json
+    {
+      "distance": "10 km",
+      "duration": "15 mins"
+    }
+    ```
+
+- **400 Bad Request**
+
+  - **Description:** Validation error for the origin or destination parameter.
+  - **Response Body:**
+    ```json
+    {
+      "errors": [
+        {
+          "msg": "Invalid value",
+          "param": "origin",
+          "location": "query"
+        },
+        {
+          "msg": "Invalid value",
+          "param": "destination",
+          "location": "query"
+        }
+      ]
+    }
+    ```
+
+- **500 Internal Server Error**
+
+  - **Description:** An error occurred while fetching the distance and time.
+  - **Response Body:**
+    ```json
+    {
+      "message": "Internal Server Error",
+      "err": "Error details"
+    }
+    ```
+
+### Example Request
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/maps/getDistanceTime?origin=San Francisco&destination=Los Angeles" \
+     -H "Authorization: Bearer jwt_token_string"
+```
+
+## 3. Get Auto Suggestion
+
+### Endpoint
+
+**GET** `/api/v1/maps/getAutoSuggestion`
+
+### Description
+
+This endpoint provides auto-complete suggestions for a given input query.
+
+### Request Query Parameters
+
+- **input** (string, required): The partial address or query for which suggestions are needed.
+
+### Request Headers
+
+- **Authorization**: A valid JWT token is required in the `Authorization` header or as a cookie.
+
+### Responses
+
+- **200 OK**
+
+  - **Description:** Suggestions retrieved successfully.
+  - **Response Body:**
+    ```json
+    [
+      {
+        "description": "San Francisco, CA, USA",
+        "place_id": "ChIJIQBpAG2ahYAR_6128GcTUEo"
+      },
+      {
+        "description": "San Francisco International Airport, CA, USA",
+        "place_id": "ChIJVXealLU_xkcRja_At0z9AGY"
+      }
+    ]
+    ```
+
+- **400 Bad Request**
+
+  - **Description:** Validation error for the input parameter.
+  - **Response Body:**
+    ```json
+    {
+      "errors": [
+        {
+          "msg": "Invalid value",
+          "param": "input",
+          "location": "query"
+        }
+      ]
+    }
+    ```
+
+- **500 Internal Server Error**
+
+  - **Description:** An error occurred while fetching suggestions.
+  - **Response Body:**
+    ```json
+    {
+      "message": "Interval server error",
+      "err": "Error details"
+    }
+    ```
+
+### Example Request
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/maps/getAutoSuggestion?input=San" \
+     -H "Authorization: Bearer jwt_token_string"
+```
