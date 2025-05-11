@@ -3,8 +3,17 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 import { IoLocationOutline } from "react-icons/io5";
 import { IoIosCash } from "react-icons/io";
 import { MdOutlineMyLocation } from "react-icons/md";
+import { useSelector } from "react-redux";
 
-const ConfirmRide = ({ setConfirmRide, setFindingDriver, setVehiclePanel }) => {
+const ConfirmRide = ({
+  pickup,
+  destination,
+  setConfirmRide,
+  setFindingDriver,
+  setVehiclePanel,
+  vehicle,
+}) => {
+  const fare = useSelector((state) => state.map.fairPrice.fare);
   return (
     <div className="">
       <div className="text-2xl translate-x-1/2 text-gray-400">
@@ -12,26 +21,50 @@ const ConfirmRide = ({ setConfirmRide, setFindingDriver, setVehiclePanel }) => {
       </div>
       <h1 className="text-2xl font-semibold mb-1">Confirm Your Ride</h1>
       <div className="flex justify-between flex-col items-center">
-        <img src="/uberCar.webp" alt="uber car" className="h-20 p-1" />
+        <img
+          src={
+            vehicle === "car"
+              ? "/uberCar.webp"
+              : vehicle === "auto"
+              ? "/autoRickshaw.webp"
+              : "uberBike.webp"
+          }
+          alt={vehicle}
+          className="h-20 p-1"
+        />
         <div className="w-full flex flex-col">
-          <div className="flex items-center gap-3">
-            <MdOutlineMyLocation className="text-xl" />
+          <div className="flex items-center gap-3 w-full">
+            <div>
+              <MdOutlineMyLocation className="text-xl" />
+            </div>
             <div className="p-2">
-              <h3 className="text-lg font-medium">562/11-A</h3>
-              <p className="text-md text-gray-600">Kankariya,Ahemdabad</p>
+              <h3 className="text-lg font-medium break-words whitespace-normal max-w-full">
+                {pickup}
+              </h3>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 w-full">
+            <div>
+              <IoLocationOutline className="text-xl" />
+            </div>
+            <div className="p-2">
+              <h3 className="text-lg font-medium break-words whitespace-normal max-w-full">
+                {destination}
+              </h3>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <IoLocationOutline className="text-xl" />
-            <div className="p-2">
-              <h3 className="text-lg font-medium">562/11-A</h3>
-              <p className="text-md text-gray-600">Kankariya,Ahemdabad</p>
+            <div>
+              <IoIosCash className="text-xl" />
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <IoIosCash className="text-xl" />
             <div className="p-2">
-              <h3 className="text-lg font-medium">$132.90</h3>
+              <h3 className="text-lg font-medium">
+                {vehicle === "car"
+                  ? fare?.car.toFixed(2)
+                  : vehicle === "auto"
+                  ? fare?.auto.toFixed(2)
+                  : fare?.motorcycle.toFixed(2)}
+              </h3>
               <p className="text-md text-gray-600">Cash</p>
             </div>
           </div>
