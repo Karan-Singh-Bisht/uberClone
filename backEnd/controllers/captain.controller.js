@@ -79,9 +79,7 @@ module.exports.loginCaptain = async (req, res) => {
       httpOnly: true,
     });
     const { password: excluded, ...captainData } = captain._doc;
-    return res
-      .status(200)
-      .json({ token, message: "Captain logged in successfully", captainData });
+    return res.status(200).json({ token, captainData });
   } catch (err) {
     res.status(500).send({ message: err.message });
   }

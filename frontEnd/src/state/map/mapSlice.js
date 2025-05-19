@@ -9,7 +9,7 @@ export const getFairPrice = createAsyncThunk(
     try {
       const token = Cookies.get("userToken");
       const response = await axios.get(
-        `${API_BASE_URL}/api/v1/ride/getFair?pickup=${encodeURIComponent(
+        `${API_BASE_URL}/api/v1/ride/getFare?pickup=${encodeURIComponent(
           pickup
         )}&destination=${encodeURIComponent(destination)}`,
         {

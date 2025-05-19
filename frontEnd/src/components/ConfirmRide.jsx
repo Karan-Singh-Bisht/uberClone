@@ -3,7 +3,8 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 import { IoLocationOutline } from "react-icons/io5";
 import { IoIosCash } from "react-icons/io";
 import { MdOutlineMyLocation } from "react-icons/md";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { createRide } from "../state/ride/rideSlice";
 
 const ConfirmRide = ({
   pickup,
@@ -14,6 +15,7 @@ const ConfirmRide = ({
   vehicle,
 }) => {
   const fare = useSelector((state) => state.map.fairPrice.fare);
+  const dispatch = useDispatch();
   return (
     <div className="">
       <div className="text-2xl translate-x-1/2 text-gray-400">
@@ -57,7 +59,7 @@ const ConfirmRide = ({
             <div>
               <IoIosCash className="text-xl" />
             </div>
-            <div className="p-2">
+            <div className="p-2 flex gap-2 items-center">
               <h3 className="text-lg font-medium">
                 {vehicle === "car"
                   ? fare?.car.toFixed(2)
@@ -74,6 +76,7 @@ const ConfirmRide = ({
             setFindingDriver(true),
               setConfirmRide(false),
               setVehiclePanel(false);
+            dispatch(createRide({ pickup, destination, vehicleType: vehicle }));
           }}
           className="w-full bg-green-600 text-white font-semibold p-2 rounded-lg"
         >

@@ -1,5 +1,6 @@
 // geoUtils.js
 const axios = require("axios");
+const Captain = require("../models/captain.model");
 
 const getAddressCoordinate = async (address) => {
   if (!address) throw new Error("Address is required");
@@ -81,8 +82,32 @@ const getAutoCompleteSuggestion = async (input) => {
   }
 };
 
+const getCaptainsInTheRadius = async (lng, lat, radiusInKm) => {
+  const radiusInMeters = radiusInKm * 1000;
+
+  const nearbyCaptains = await Captain.find({
+    location: {
+      $geoWithin: {
+        $centerSphere: [[lng, lat], radiusInMeters / 6378.1],
+      },
+    },
+  });
+
+  const captains = nearbyCaptains.map(({ _doc }) => {
+    const { password, ...captainWithoutPassword } = _doc;
+    return captainWithoutPassword;
+  });
+
+  if (!nearbyCaptains || nearbyCaptains.length === 0) {
+    throw new Error("No captains found in the specified radius");
+  }
+
+  return captains;
+};
+
 module.exports = {
   getAddressCoordinate,
   getDistanceTime,
   getAutoCompleteSuggestion,
+  getCaptainsInTheRadius,
 };

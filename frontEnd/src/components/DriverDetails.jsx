@@ -6,50 +6,59 @@ import {
   MdOutlineMyLocation,
   MdOutlineStarPurple500,
 } from "react-icons/md";
-import { SlArrowRight } from "react-icons/sl";
 
-const DriverDetails = ({ setDriverDetail }) => {
+const DriverDetails = ({
+  ride,
+  setDriverDetail,
+  setFindingDriver,
+  setVehiclePanel,
+  setConfirmRide,
+}) => {
   return (
     <div>
       <div className="text-2xl translate-x-1/2 text-gray-400">
-        <MdKeyboardArrowDown onClick={() => setConfirmRide(false)} />
+        <MdKeyboardArrowDown onClick={() => setDriverDetail(false)} />
       </div>
-      <h1 className="text-2xl font-semibold mb-1">Confirm Your Ride</h1>
-      <div className="flex justify-between flex-col items-center">
+      <div className="flex gap-2 justify-around w-full">
         <img src="/uberCar.webp" alt="uber car" className="h-20 p-1" />
+        <div>
+          <h3 className="text-2xl font-semibold">
+            {ride?.captain?.fullName?.firstName}
+          </h3>
+          <h1 className="text-xl font-bold">{ride?.captain?.vehicle?.plate}</h1>
+          <p className="text-lg">{ride?.captain?.vehicle?.vehicleType}</p>
+        </div>
+      </div>
+      <div className="flex justify-between flex-col items-center">
         <div className="w-full flex flex-col">
           <div className="flex items-center gap-3">
-            <MdOutlineMyLocation className="text-xl" />
+            <div>
+              <MdOutlineMyLocation className="text-xl" />
+            </div>
             <div className="p-2">
-              <h3 className="text-lg font-medium">562/11-A</h3>
-              <p className="text-md text-gray-600">Kankariya,Ahemdabad</p>
+              <h3 className="text-lg font-medium">{ride?.pickup}</h3>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <IoLocationOutline className="text-xl" />
+            <div>
+              <IoLocationOutline className="text-xl" />
+            </div>
             <div className="p-2">
-              <h3 className="text-lg font-medium">562/11-A</h3>
-              <p className="text-md text-gray-600">Kankariya,Ahemdabad</p>
+              <h3 className="text-lg font-medium">{ride?.destination}</h3>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <IoIosCash className="text-xl" />
             <div className="p-2">
-              <h3 className="text-lg font-medium">$132.90</h3>
+              <h3 className="text-lg font-medium">₹{ride?.fare}</h3>
               <p className="text-md text-gray-600">Cash</p>
             </div>
           </div>
+          <div className="mb-2 flex gap-2">
+            <h1 className="text-lg font-semibold">OTP</h1>
+            <h1 className="text-lg font-semibold">{ride?.otp}</h1>
+          </div>
         </div>
-        <button
-          onClick={() => {
-            setFindingDriver(true),
-              setConfirmRide(false),
-              setVehiclePanel(false);
-          }}
-          className="w-full bg-green-600 text-white font-semibold p-2 rounded-lg"
-        >
-          Confirm
-        </button>
       </div>
     </div>
   );

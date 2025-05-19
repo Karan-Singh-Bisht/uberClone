@@ -37,7 +37,7 @@ const VehiclePanel = ({ setVehicle, setVehiclePanel, setConfirmRide }) => {
       <div
         onClick={() => {
           setConfirmRide(true);
-          setVehicle("bike");
+          setVehicle("motorcycle");
         }}
         className="flex w-full items-center border-2 active:border-black rounded-xl justify-between p-2"
       >

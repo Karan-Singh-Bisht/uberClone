@@ -722,3 +722,172 @@ This endpoint provides auto-complete suggestions for a given input query.
 curl -X GET "http://localhost:8080/api/v1/maps/getAutoSuggestion?input=San" \
      -H "Authorization: Bearer jwt_token_string"
 ```
+
+# Ride Routes Documentation
+
+## 1. Create Ride
+
+### Endpoint
+
+**POST** `/api/v1/ride/create`
+
+### Description
+
+This endpoint creates a new ride request. It calculates the fare based on the pickup and destination locations and the selected vehicle type.
+
+### Request Body
+
+The request body must be a JSON object with the following structure:
+
+```json
+{
+  "pickup": "string", // required, at least 3 characters
+  "destination": "string", // required, at least 3 characters
+  "vehicleType": "string" // required, must be one of: car, auto, motorcycle
+}
+```
+
+### Request Headers
+
+- **Authorization**: A valid JWT token is required in the `Authorization` header or as a cookie.
+
+### Responses
+
+- **201 Created**
+
+  - **Description:** Ride created successfully.
+  - **Response Body:**
+    ```json
+    {
+      "ride": {
+        "_id": "ride_id",
+        "user": "user_id",
+        "pickup": "Pickup Address",
+        "destination": "Destination Address",
+        "fare": 150,
+        "otp": "1234"
+      }
+    }
+    ```
+
+- **400 Bad Request**
+
+  - **Description:** Validation error for the request body parameters.
+  - **Response Body:**
+    ```json
+    {
+      "errors": [
+        {
+          "msg": "Invalid Pickup Address",
+          "param": "pickup",
+          "location": "body"
+        },
+        {
+          "msg": "Invalid Destination Address",
+          "param": "destination",
+          "location": "body"
+        },
+        {
+          "msg": "Invalid Vehicle Type",
+          "param": "vehicleType",
+          "location": "body"
+        }
+      ]
+    }
+    ```
+
+- **500 Internal Server Error**
+
+  - **Description:** An error occurred while creating the ride.
+  - **Response Body:**
+    ```json
+    {
+      "error": "Error details"
+    }
+    ```
+
+### Example Request
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ride/create \
+ -H "Content-Type: application/json" \
+ -H "Authorization: Bearer jwt_token_string" \
+ -d '{
+       "pickup": "123 Main St",
+       "destination": "456 Elm St",
+       "vehicleType": "car"
+     }'
+```
+
+## 2. Get Fare
+
+### Endpoint
+
+**GET** `/api/v1/ride/getFair`
+
+### Description
+
+This endpoint calculates the fare for a ride based on the pickup and destination locations.
+
+### Request Query Parameters
+
+- **pickup** (string, required): The pickup location. Must be at least 3 characters long.
+- **destination** (string, required): The destination location. Must be at least 3 characters long.
+
+### Request Headers
+
+- **Authorization**: A valid JWT token is required in the `Authorization` header or as a cookie.
+
+### Responses
+
+- **200 OK**
+
+  - **Description:** Fare calculated successfully.
+  - **Response Body:**
+    ```json
+    {
+      "fare": {
+        "car": 150,
+        "auto": 100,
+        "motorcycle": 70
+      }
+    }
+    ```
+
+- **400 Bad Request**
+
+  - **Description:** Validation error for the query parameters.
+  - **Response Body:**
+    ```json
+    {
+      "errors": [
+        {
+          "msg": "Invalid Pickup Length",
+          "param": "pickup",
+          "location": "query"
+        },
+        {
+          "msg": "Invalid Destination Length",
+          "param": "destination",
+          "location": "query"
+        }
+      ]
+    }
+    ```
+
+- **500 Internal Server Error**
+
+  - **Description:** An error occurred while calculating the fare.
+  - **Response Body:**
+    ```json
+    {
+      "error": "Error details"
+    }
+    ```
+
+### Example Request
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/ride/getFair?pickup=123 Main St&destination=456 Elm St" \
+ -H "Authorization: Bearer jwt_token_string"
+```

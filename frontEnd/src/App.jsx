@@ -9,19 +9,42 @@ import HomePage from "./pages/HomePage";
 import CaptainHome from "./pages/CaptainHome";
 import Riding from "./pages/Riding";
 import CaptainRiding from "./components/CaptainRiding";
+import PrivateUserRoute from "./pages/PrivateUserRoute";
+import PrivateCaptainRoute from "./pages/PrivateCaptainRoute";
 
 const App = () => {
   return (
     <div>
       <Routes>
         <Route path="/" element={<StartPage />} />
-        <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<UserLoginPage />} />
-        <Route path="/riding" element={<Riding />} />
         <Route path="/signup" element={<UserSignUpPage />} />
         <Route path="/captain-login" element={<CaptainLoginPage />} />
         <Route path="/captain-signup" element={<CaptainSignUpPage />} />
-        <Route path="/captain-home" element={<CaptainHome />} />
+        <Route
+          path="/home"
+          element={
+            <PrivateUserRoute>
+              <HomePage />
+            </PrivateUserRoute>
+          }
+        />
+        <Route
+          path="/riding"
+          element={
+            <PrivateUserRoute>
+              <Riding />
+            </PrivateUserRoute>
+          }
+        />
+        <Route
+          path="/captain-home"
+          element={
+            <PrivateCaptainRoute>
+              <CaptainHome />
+            </PrivateCaptainRoute>
+          }
+        />
         <Route path="/captain-riding" element={<CaptainRiding />} />
       </Routes>
     </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { logOut } from "../state/Auth/userAuthSlice";
+import { getUserProfile, logOut } from "../state/Auth/userAuthSlice";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { MdKeyboardArrowDown } from "react-icons/md";
@@ -13,6 +13,8 @@ import DriverDetails from "../components/DriverDetails";
 import { RxCross2 } from "react-icons/rx";
 import { getAutoCompleteSuggestion } from "../state/map/mapSlice";
 import { debounce } from "lodash";
+import useSocket from "../hooks/useSocket";
+import LiveTracking from "../components/LiveTracking";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -26,6 +28,7 @@ const HomePage = () => {
   const [findingDriver, setFindingDriver] = useState(false);
   const [driverDetail, setDriverDetail] = useState(false);
   const [vehicle, setVehicle] = useState("");
+  const [ride, setRide] = useState({});
   const panelRef = useRef(null);
   const vehiclePanelRef = useRef(null);
   const confirmRideRef = useRef(null);
@@ -33,6 +36,48 @@ const HomePage = () => {
   const driverDetailsRef = useRef(null);
   const dispatch = useDispatch();
   const locations = useSelector((state) => state.map.autoCompleteSuggestions);
+  const userId = useSelector((state) => state.userAuth?.user?._id);
+  const socket = useSocket(userId, "user");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      await dispatch(getUserProfile());
+    };
+
+    if (!userId) {
+      fetchUser();
+    }
+  }, [userId, dispatch]);
+
+  useEffect(() => {
+    if (!userId) return;
+    socket.emit("join", { userId, userType: "user" });
+
+    socket.on("error", (error) => {
+      console.error("Socket error:", error);
+    });
+
+    return () => {
+      socket.off("rideResponse");
+      socket.off("error");
+    };
+  }, [userId]);
+
+  socket.on("ride-confirmed", (ride) => {
+    setFindingDriver(false);
+    setDriverDetail(true);
+    setRide(ride);
+  });
+
+  socket.on("ride-started", (ride) => {
+    navigate("/riding", {
+      state: {
+        ride: ride,
+      },
+    });
+    setFindingDriver(false);
+    setDriverDetail(false);
+  });
 
   const handleLogout = async () => {
     const response = await dispatch(logOut());
@@ -105,24 +150,20 @@ const HomePage = () => {
     [findingDriver]
   );
 
-  useGSAP(function () {
-    if (driverDetail) {
-      gsap.to(driverDetailsRef.current, {
-        transform: "translateY(0)",
-      });
-    } else {
-      gsap.to(driverDetailsRef.current, {
-        transform: "translateY(100%)",
-      });
-    }
-  });
-
-  const { token } = useSelector((state) => state.userAuth);
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
-  }, [token]);
+  useGSAP(
+    function () {
+      if (driverDetail) {
+        gsap.to(driverDetailsRef.current, {
+          transform: "translateY(0)",
+        });
+      } else {
+        gsap.to(driverDetailsRef.current, {
+          transform: "translateY(100%)",
+        });
+      }
+    },
+    [driverDetail]
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -155,7 +196,7 @@ const HomePage = () => {
         onClick={() => setVehiclePanel(false)}
         className="h-screen w-screen overflow-hidden"
       >
-        <img src="/map.webp" alt="" className="w-full h-full object-cover" />
+        <LiveTracking />
       </div>
       <div className="flex flex-col overflow-hidden justify-end h-screen absolute top-0 w-full ">
         <div className="h-[30%] p-5 bg-white relative">
@@ -278,7 +319,13 @@ const HomePage = () => {
         ref={driverDetailsRef}
         className="fixed translate-y-full flex flex-col gap-2 z-10 bottom-0 w-full bg-white p-4"
       >
-        <DriverDetails setDriverDetail={setDriverDetail} />
+        <DriverDetails
+          setConfirmRide={setConfirmRide}
+          setVehiclePanel={setVehiclePanel}
+          setFindingDriver={setFindingDriver}
+          ride={ride}
+          setDriverDetail={setDriverDetail}
+        />
       </div>
     </div>
   );

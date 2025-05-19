@@ -1,17 +1,22 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 const CaptainDetails = () => {
+  const captain = useSelector((state) => state.captainAuth?.captain);
+
   return (
     <div>
       <div className="flex items-center justify-between">
         <div className="flex items-center justify-start gap-3">
           <img
             className="h-10 w-10 rounded-full object-cover"
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdlMd7stpWUCmjpfRjUsQ72xSWikidbgaI1w&s"
+            src={`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdlMd7stpWUCmjpfRjUsQ72xSWikidbgaI1w&s`}
             alt=""
           />
-          <h4 className="text-lg font-medium capitalize">
-            <h1 className="text-black">Harsh Patel</h1>
+          <h4 className="text-lg font-medium capitalize flex gap-2">
+            <h1 className="text-black">
+              {captain?.fullName?.firstName + " " + captain?.fullName?.lastName}
+            </h1>
           </h4>
         </div>
         <div>

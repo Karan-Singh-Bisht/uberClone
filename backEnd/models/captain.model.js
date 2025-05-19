@@ -58,14 +58,19 @@ const captainSchema = new mongoose.Schema({
     },
   },
   location: {
-    lat: {
-      type: Number,
+    type: {
+      type: String,
+      enum: ["Point"],
+      required: true,
     },
-    lng: {
-      type: Number,
+    coordinates: {
+      type: [Number], // [longitude, latitude]
+      required: true,
     },
   },
 });
+
+captainSchema.index({ location: "2dsphere" });
 
 captainSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();

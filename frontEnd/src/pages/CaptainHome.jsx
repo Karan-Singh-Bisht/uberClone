@@ -11,10 +11,12 @@ import CaptainDetails from "../components/CaptainDetails";
 import RidePopUp from "../components/RidePopUp";
 import ConfirmRidePopUp from "../components/ConfirmRidePopUp";
 import { MdKeyboardArrowDown } from "react-icons/md";
+import { useSelector } from "react-redux";
+import useSocket from "../hooks/useSocket";
+import { confirmRide } from "../state/ride/rideSlice";
 
 const CaptainHome = () => {
   const navigate = useNavigate();
-  //   const { token } = useSelector((state) => state.captainAuth);
   const token = Cookies.get("captainToken");
   const dispatch = useDispatch();
 
@@ -22,7 +24,9 @@ const CaptainHome = () => {
   const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false);
   const ridePopupPanelRef = useRef(null);
   const confirmRidePopupPanelRef = useRef(null);
-  const [ride, setRide] = useState(null);
+  const [ride, setRide] = useState({});
+  const captainId = useSelector((state) => state?.captainAuth?.captain?._id);
+  const socket = useSocket(captainId, "captain");
 
   const handleLogOut = async () => {
     try {
@@ -36,11 +40,6 @@ const CaptainHome = () => {
   };
 
   useEffect(() => {
-    if (!token) {
-      navigate("/captain-login");
-      return;
-    }
-
     const getProfile = async () => {
       const result = await dispatch(getCaptainProfile()); // Capture the result
       if (result.meta?.requestStatus === "fulfilled") {
@@ -51,8 +50,56 @@ const CaptainHome = () => {
       }
     };
 
-    getProfile();
-  }, [token, dispatch, navigate]);
+    if (!captainId) {
+      getProfile();
+    }
+  }, [token, dispatch, navigate, captainId]);
+
+  useEffect(() => {
+    if (!captainId) return;
+    socket.emit("join", { userId: captainId, userType: "captain" });
+
+    socket.on("error", (error) => {
+      console.error("Socket error:", error);
+    });
+
+    const updateLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const { latitude, longitude } = position.coords;
+
+          socket.emit("updateCaptainLocation", {
+            userId: captainId,
+            location: {
+              type: "Point",
+              coordinates: [longitude, latitude], // [lng, lat] order as per GeoJSON
+            },
+          });
+        });
+      }
+    };
+
+    const locationInterval = setInterval(updateLocation(), 10000);
+
+    return () => {
+      socket.off("rideResponse");
+      socket.off("error");
+      // clearInterval(locationInterval);
+    };
+  }, [captainId]);
+
+  socket.on("new-ride", (data) => {
+    setRide(data);
+    setRidePopupPanel(true);
+  });
+
+  const confirmDriveRide = async () => {
+    try {
+      await dispatch(confirmRide(ride._id));
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   useGSAP(
     function () {
@@ -117,7 +164,7 @@ const CaptainHome = () => {
           ride={ride}
           setRidePopupPanel={setRidePopupPanel}
           setConfirmRidePopupPanel={setConfirmRidePopupPanel}
-          // confirmRide={confirmRide}
+          confirmRide={confirmDriveRide}
         />
       </div>
       <div

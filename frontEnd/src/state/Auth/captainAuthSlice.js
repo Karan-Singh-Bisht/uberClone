@@ -55,9 +55,10 @@ export const logout = createAsyncThunk(
 
 export const getCaptainProfile = createAsyncThunk(
   "/auth/getCaptainProfile",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
-      const token = Cookies.get("captainToken");
+      const state = getState();
+      const token = state.captainAuth.token || Cookies.get("captainToken");
       const response = await axios.get(
         `${API_BASE_URL}/api/v1/captain/profile`,
         {
@@ -111,6 +112,7 @@ const captainAuthSlice = createSlice({
       .addCase(loginCaptain.fulfilled, (state, action) => {
         state.loading = false;
         state.token = action.payload.token;
+        state.captain = action.payload.captainData;
         state.error = null;
       })
       .addCase(loginCaptain.rejected, (state, action) => {
@@ -124,6 +126,7 @@ const captainAuthSlice = createSlice({
       .addCase(getCaptainProfile.fulfilled, (state, action) => {
         state.loading = false;
         state.captain = action.payload.captain;
+        state.token = Cookies.get("captainToken");
         state.error = null;
       })
       .addCase(getCaptainProfile.rejected, (state, action) => {
