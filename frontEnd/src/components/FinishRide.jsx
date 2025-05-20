@@ -3,6 +3,7 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { endRide } from "../state/ride/rideSlice";
+import useSocket from "../hooks/useSocket";
 
 const FinishRide = (props) => {
   const dispatch = useDispatch();

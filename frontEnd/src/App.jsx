@@ -11,6 +11,7 @@ import Riding from "./pages/Riding";
 import CaptainRiding from "./components/CaptainRiding";
 import PrivateUserRoute from "./pages/PrivateUserRoute";
 import PrivateCaptainRoute from "./pages/PrivateCaptainRoute";
+import Payment from "./pages/Payment";
 
 const App = () => {
   return (
@@ -34,6 +35,14 @@ const App = () => {
           element={
             <PrivateUserRoute>
               <Riding />
+            </PrivateUserRoute>
+          }
+        />
+        <Route
+          path="/payment"
+          element={
+            <PrivateUserRoute>
+              <Payment />
             </PrivateUserRoute>
           }
         />

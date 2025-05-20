@@ -1,36 +1,130 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { useEffect } from "react";
 import useSocket from "../hooks/useSocket";
 import LiveTracking from "../components/LiveTracking";
+import { createPayment, verifyPayment } from "../state/Payment/paymentSlice";
 
 const Riding = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const ride = location.state?.ride;
+  const dispatch = useDispatch();
   const socket = useSocket(ride.user._id, "user");
 
   const [paymentPanel, setPaymentPanel] = useState(false);
   const paymentPanelRef = useRef(null);
+  const [paymentStatus, setPaymentStatus] = useState("pending"); // pending, success, failed
+
+  const { payment, loading } = useSelector((state) => state.payment);
+
+  useEffect(() => {
+    // Load Razorpay script if not already loaded
+    if (!window.Razorpay) {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
+    // Cleanup
+    return () => {
+      const script = document.querySelector(
+        'script[src="https://checkout.razorpay.com/v1/checkout.js"]'
+      );
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+  }, []);
+
+  const handlePayment = async () => {
+    try {
+      setPaymentStatus("processing");
+
+      const payload = {
+        amount: ride.fare * 100,
+        currency: "INR",
+        receipt: `receipt_${ride._id}`,
+      };
+
+      const res = await dispatch(createPayment(payload));
+
+      if (!res.payload || !res.payload.order || !res.payload.order.id) {
+        setPaymentStatus("failed");
+        alert("Payment initiation failed");
+        return;
+      }
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: ride.fare * 100,
+        currency: "INR",
+        name: "Uber Clone",
+        description: "Ride Payment",
+        order_id: res.payload.order.id,
+        handler: async function (response) {
+          setPaymentStatus("verifying");
+
+          const verificationPayload = {
+            rideId: ride._id,
+            razorpayOrderId: response.razorpay_order_id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature,
+          };
+
+          const verifyRes = await dispatch(verifyPayment(verificationPayload));
+
+          if (verifyRes.payload && verifyRes.payload.success) {
+            setPaymentStatus("success");
+            // Close payment panel after success
+            setTimeout(() => {
+              setPaymentPanel(false);
+            }, 1500);
+          } else {
+            setPaymentStatus("failed");
+            alert("Payment verification failed");
+          }
+        },
+        prefill: {
+          name: ride.user.name,
+          email: ride.user.email,
+          contact: ride.user.phone || "", // Add phone if available
+        },
+        theme: {
+          color: "#3399cc",
+        },
+        modal: {
+          ondismiss: function () {
+            setPaymentStatus("pending");
+            console.log("Payment modal closed");
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error("Payment error:", error);
+      setPaymentStatus("failed");
+      alert("Payment process failed: " + error.message);
+    }
+  };
+
+  socket.on("payment-verified", (data) => {
+    if (data.message.includes("navigate to home")) {
+      navigate("/home");
+    }
+  });
 
   useGSAP(() => {
-    if (paymentPanel) {
-      gsap.to(paymentPanelRef.current, {
-        transform: "translateY(0)",
-      });
-    } else {
-      gsap.to(paymentPanelRef.current, {
-        transform: "translateY(100%)",
-      });
-    }
+    gsap.to(paymentPanelRef.current, {
+      transform: paymentPanel ? "translateY(0)" : "translateY(100%)",
+    });
   }, [paymentPanel]);
-
-  socket.on("ride-ended", () => {
-    navigate("/home");
-  });
 
   return (
     <div className="h-screen">
@@ -108,8 +202,34 @@ const Riding = () => {
           </div>
         </div>
 
-        <button className="w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg">
-          Make a Payment
+        <button
+          onClick={handlePayment}
+          disabled={
+            loading ||
+            paymentStatus === "processing" ||
+            paymentStatus === "verifying"
+          }
+          className={`w-full mt-5 ${
+            loading ||
+            paymentStatus === "processing" ||
+            paymentStatus === "verifying"
+              ? "bg-gray-400"
+              : paymentStatus === "success"
+              ? "bg-green-600"
+              : paymentStatus === "failed"
+              ? "bg-red-600"
+              : "bg-green-600"
+          } text-white font-semibold p-2 rounded-lg`}
+        >
+          {loading || paymentStatus === "processing"
+            ? "Processing..."
+            : paymentStatus === "verifying"
+            ? "Verifying Payment..."
+            : paymentStatus === "success"
+            ? "Payment Successful"
+            : paymentStatus === "failed"
+            ? "Payment Failed - Try Again"
+            : `Pay ₹${ride?.fare}`}
         </button>
       </div>
     </div>

@@ -100,6 +100,7 @@ const rideSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // createRide
       .addCase(createRide.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -110,6 +111,51 @@ const rideSlice = createSlice({
         state.error = null;
       })
       .addCase(createRide.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // confirmRide
+      .addCase(confirmRide.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(confirmRide.fulfilled, (state, action) => {
+        state.loading = false;
+        state.ride = action.payload;
+        state.error = null;
+      })
+      .addCase(confirmRide.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // startRide
+      .addCase(startRide.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(startRide.fulfilled, (state, action) => {
+        state.loading = false;
+        state.ride = action.payload;
+        state.error = null;
+      })
+      .addCase(startRide.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // endRide
+      .addCase(endRide.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(endRide.fulfilled, (state, action) => {
+        state.loading = false;
+        state.ride = action.payload;
+        state.error = null;
+      })
+      .addCase(endRide.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

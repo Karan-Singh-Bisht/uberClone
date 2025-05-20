@@ -6,10 +6,11 @@ import { useGSAP } from "@gsap/react";
 import FinishRide from "./FinishRide";
 import gsap from "gsap";
 import LiveTracking from "./LiveTracking";
+import { useSelector } from "react-redux";
 
 const CaptainRiding = () => {
-  const location = useLocation();
-  const ride = location.state?.ride;
+  // const location = useLocation();
+  const ride = useSelector((state) => state.ride.ride.ride);
 
   const handleLogOut = () => {
     console.log("LOG_OUT");

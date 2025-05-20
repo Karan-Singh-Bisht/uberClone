@@ -3,6 +3,7 @@ import userAuthReducer from "./Auth/userAuthSlice";
 import captainAuthReducer from "./Auth/captainAuthSlice";
 import mapReducer from "./map/mapSlice";
 import rideReducer from "./ride/rideSlice";
+import paymentReducer from "./Payment/paymentSlice";
 
 export default configureStore({
   reducer: {
@@ -10,5 +11,6 @@ export default configureStore({
     captainAuth: captainAuthReducer,
     map: mapReducer,
     ride: rideReducer,
+    payment: paymentReducer,
   },
 });
