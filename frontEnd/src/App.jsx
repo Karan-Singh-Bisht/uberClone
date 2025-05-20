@@ -12,6 +12,7 @@ import CaptainRiding from "./components/CaptainRiding";
 import PrivateUserRoute from "./pages/PrivateUserRoute";
 import PrivateCaptainRoute from "./pages/PrivateCaptainRoute";
 import Payment from "./pages/Payment";
+import { Toaster } from "sonner";
 
 const App = () => {
   return (
@@ -56,6 +57,7 @@ const App = () => {
         />
         <Route path="/captain-riding" element={<CaptainRiding />} />
       </Routes>
+      <Toaster />
     </div>
   );
 };

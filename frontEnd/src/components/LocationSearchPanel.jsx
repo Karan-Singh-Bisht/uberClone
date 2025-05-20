@@ -41,7 +41,7 @@ const LocationSearchPanel = ({
           </div>
         ))
       )}
-      {locations.length >= 1 && (
+      {locations.length >= 1 && pickup && destination && (
         <div
           onClick={() => {
             setIsOpen(false);
