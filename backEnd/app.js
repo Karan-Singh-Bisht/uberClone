@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const cron = require("cron");
 const db = require("./config/db");
 db();
 
@@ -10,6 +11,11 @@ app.use(cookieParser());
 app.use(cors("*"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+cron.schedule("*/5 * * * *", () => {
+  exec("curl https://quickryde.onrender.com");
+  console.log("Corn running....");
+});
 
 const userRouter = require("./routes/user.routes");
 const captainRouter = require("./routes/captain.routes");
