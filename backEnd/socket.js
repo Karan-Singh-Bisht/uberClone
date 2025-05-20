@@ -50,6 +50,28 @@ const initializeSocket = (io) => {
       }
     });
 
+    // socket.on("payment-verified", async (data) => {
+    //   try {
+    //     const { captainId, rideId } = data;
+
+    //     // Fetch captain's socketId from DB
+    //     const captain = await Captain.findById(captainId);
+
+    //     if (!captain || !captain.socketId) {
+    //       console.error("Captain socketId not found");
+    //       return;
+    //     }
+
+    //     // Send event to captain's socket
+    //     _io.to(captain.socketId).emit("payment-verified", {
+    //       rideId,
+    //       message: "Payment Completed",
+    //     });
+    //   } catch (err) {
+    //     console.error("Error emitting payment-verified event:", err);
+    //   }
+    // });
+
     socket.on("disconnect", () => {
       console.log("Disconnected:", socket.id);
     });

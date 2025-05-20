@@ -40,12 +40,15 @@ const rideSchema = new mongoose.Schema({
   },
   paymentId: {
     type: String,
+    select: false,
   },
   orderId: {
     type: String,
+    select: false,
   },
   signature: {
     type: String,
+    select: false,
   },
   otp: {
     type: String,
