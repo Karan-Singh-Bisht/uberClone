@@ -13,11 +13,11 @@ const CaptainDetails = () => {
             src={`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdlMd7stpWUCmjpfRjUsQ72xSWikidbgaI1w&s`}
             alt=""
           />
-          <h4 className="text-lg font-medium capitalize flex gap-2">
+          <span className="text-lg font-medium capitalize flex gap-2">
             <h1 className="text-black">
               {captain?.fullName?.firstName + " " + captain?.fullName?.lastName}
             </h1>
-          </h4>
+          </span>
         </div>
         <div>
           <h4 className="text-xl font-semibold">₹295.20</h4>
