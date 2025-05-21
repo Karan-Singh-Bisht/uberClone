@@ -8,7 +8,7 @@ A full-stack application that replicates the core functionalities of the Uber pl
 - Book a ride with pickup and drop-off locations
 - Real-time location tracking using maps
 - Driver and rider modes
-- Payment integration (optional)
+- Payment integration
 - Responsive design for mobile and desktop
 
 ## Tech Stack
