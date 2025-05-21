@@ -891,3 +891,445 @@ This endpoint calculates the fare for a ride based on the pickup and destination
 curl -X GET "http://localhost:8080/api/v1/ride/getFair?pickup=123 Main St&destination=456 Elm St" \
  -H "Authorization: Bearer jwt_token_string"
 ```
+
+## 3. Confirm Ride
+
+### Endpoint
+
+**POST** `/api/v1/ride/confirm`
+
+### Description
+
+This endpoint allows a captain to confirm a ride request.
+
+### Request Body
+
+The request body must be a JSON object with the following structure:
+
+```json
+{
+  "rideId": "string" // required, must be a valid MongoDB ObjectId
+}
+```
+
+### Request Headers
+
+- **Authorization**: A valid JWT token is required in the `Authorization` header or as a cookie.
+
+### Responses
+
+- **200 OK**
+
+  - **Description:** Ride confirmed successfully.
+  - **Response Body:**
+    ```json
+    {
+      "ride": {
+        "_id": "ride_id",
+        "user": "user_id",
+        "pickup": "Pickup Address",
+        "destination": "Destination Address",
+        "fare": 150,
+        "status": "confirmed"
+      }
+    }
+    ```
+
+- **400 Bad Request**
+
+  - **Description:** Validation error for the request body parameters.
+  - **Response Body:**
+    ```json
+    {
+      "errors": [
+        {
+          "msg": "Invalid Ride ID",
+          "param": "rideId",
+          "location": "body"
+        }
+      ]
+    }
+    ```
+
+- **500 Internal Server Error**
+
+  - **Description:** An error occurred while confirming the ride.
+  - **Response Body:**
+    ```json
+    {
+      "error": "Error details"
+    }
+    ```
+
+### Example Request
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ride/confirm \
+ -H "Content-Type: application/json" \
+ -H "Authorization: Bearer jwt_token_string" \
+ -d '{
+       "rideId": "ride_id"
+     }'
+```
+
+## 4. Start Ride
+
+### Endpoint
+
+**GET** `/api/v1/ride/start-ride`
+
+### Description
+
+This endpoint allows a captain to start a ride after verifying the OTP.
+
+### Request Query Parameters
+
+- **rideId** (string, required): The ID of the ride. Must be a valid MongoDB ObjectId.
+- **otp** (string, required): The OTP for the ride. Must be exactly 4 characters long.
+
+### Request Headers
+
+- **Authorization**: A valid JWT token is required in the `Authorization` header or as a cookie.
+
+### Responses
+
+- **200 OK**
+
+  - **Description:** Ride started successfully.
+  - **Response Body:**
+    ```json
+    {
+      "ride": {
+        "_id": "ride_id",
+        "user": "user_id",
+        "pickup": "Pickup Address",
+        "destination": "Destination Address",
+        "fare": 150,
+        "status": "ongoing"
+      }
+    }
+    ```
+
+- **400 Bad Request**
+
+  - **Description:** Validation error for the query parameters.
+  - **Response Body:**
+    ```json
+    {
+      "errors": [
+        {
+          "msg": "Invalid Ride ID",
+          "param": "rideId",
+          "location": "query"
+        },
+        {
+          "msg": "Invalid OTP",
+          "param": "otp",
+          "location": "query"
+        }
+      ]
+    }
+    ```
+
+- **404 Not Found**
+
+  - **Description:** Ride not found.
+  - **Response Body:**
+    ```json
+    {
+      "message": "Ride not found"
+    }
+    ```
+
+- **500 Internal Server Error**
+
+  - **Description:** An error occurred while starting the ride.
+  - **Response Body:**
+    ```json
+    {
+      "error": "Error details"
+    }
+    ```
+
+### Example Request
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/ride/start-ride?rideId=ride_id&otp=1234" \
+ -H "Authorization: Bearer jwt_token_string"
+```
+
+## 5. End Ride
+
+### Endpoint
+
+**POST** `/api/v1/ride/end-ride`
+
+### Description
+
+This endpoint allows a captain to end a ride.
+
+### Request Body
+
+The request body must be a JSON object with the following structure:
+
+```json
+{
+  "rideId": "string" // required, must be a valid MongoDB ObjectId
+}
+```
+
+### Request Headers
+
+- **Authorization**: A valid JWT token is required in the `Authorization` header or as a cookie.
+
+### Responses
+
+- **200 OK**
+
+  - **Description:** Ride ended successfully.
+  - **Response Body:**
+    ```json
+    {
+      "ride": {
+        "_id": "ride_id",
+        "user": "user_id",
+        "pickup": "Pickup Address",
+        "destination": "Destination Address",
+        "fare": 150,
+        "status": "completed"
+      }
+    }
+    ```
+
+- **400 Bad Request**
+
+  - **Description:** Validation error for the request body parameters.
+  - **Response Body:**
+    ```json
+    {
+      "errors": [
+        {
+          "msg": "Invalid Ride ID",
+          "param": "rideId",
+          "location": "body"
+        }
+      ]
+    }
+    ```
+
+- **500 Internal Server Error**
+
+  - **Description:** An error occurred while ending the ride.
+  - **Response Body:**
+    ```json
+    {
+      "error": "Error details"
+    }
+    ```
+
+### Example Request
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ride/end-ride \
+ -H "Content-Type: application/json" \
+ -H "Authorization: Bearer jwt_token_string" \
+ -d '{
+       "rideId": "ride_id"
+     }'
+```
+
+# Payment Routes Documentation
+
+## 1. Create Order
+
+### Endpoint
+
+**POST** `/api/v1/payment/create-order`
+
+### Description
+
+This endpoint creates a Razorpay order for payment.
+
+### Request Body
+
+The request body must be a JSON object with the following structure:
+
+```json
+{
+  "amount": 1000, // required, numeric, amount in smallest currency unit (e.g., paise for INR)
+  "currency": "INR", // required, string, must be at least 3 characters
+  "receipt": "receipt_123" // optional, string, must be at least 3 characters
+}
+```
+
+### Request Headers
+
+- **Content-Type**: `application/json`
+
+### Responses
+
+- **200 OK**
+
+  - **Description:** Razorpay order created successfully.
+  - **Response Body:**
+    ```json
+    {
+      "success": true,
+      "order": {
+        "id": "order_id",
+        "entity": "order",
+        "amount": 1000,
+        "currency": "INR",
+        "receipt": "receipt_123",
+        "status": "created"
+      }
+    }
+    ```
+
+- **400 Bad Request**
+
+  - **Description:** Validation error for the request body parameters.
+  - **Response Body:**
+    ```json
+    {
+      "success": false,
+      "errors": [
+        {
+          "msg": "Invalid value",
+          "param": "amount",
+          "location": "body"
+        },
+        {
+          "msg": "Invalid value",
+          "param": "currency",
+          "location": "body"
+        }
+      ]
+    }
+    ```
+
+- **500 Internal Server Error**
+
+  - **Description:** An error occurred while creating the Razorpay order.
+  - **Response Body:**
+    ```json
+    {
+      "success": false,
+      "message": "Failed to create Razorpay order"
+    }
+    ```
+
+### Example Request
+
+```bash
+curl -X POST http://localhost:8080/api/v1/payment/create-order \
+ -H "Content-Type: application/json" \
+ -d '{
+       "amount": 1000,
+       "currency": "INR",
+       "receipt": "receipt_123"
+     }'
+```
+
+## 2. Verify Payment
+
+### Endpoint
+
+**POST** `/api/v1/payment/verify-payment`
+
+### Description
+
+This endpoint verifies the payment made through Razorpay.
+
+### Request Body
+
+The request body must be a JSON object with the following structure:
+
+```json
+{
+  "rideId": "ride_id", // required, must be a valid MongoDB ObjectId
+  "razorpayOrderId": "order_id", // required, string
+  "razorpayPaymentId": "payment_id", // required, string
+  "razorpaySignature": "signature" // required, string
+}
+```
+
+### Request Headers
+
+- **Content-Type**: `application/json`
+
+### Responses
+
+- **200 OK**
+
+  - **Description:** Payment verified successfully.
+  - **Response Body:**
+    ```json
+    {
+      "success": true,
+      "message": "Payment verified",
+      "ride": {
+        "_id": "ride_id",
+        "paymentId": "payment_id",
+        "orderId": "order_id",
+        "signature": "signature"
+      }
+    }
+    ```
+
+- **400 Bad Request**
+
+  - **Description:** Invalid payment signature or validation error for the request body parameters.
+  - **Response Body:**
+    ```json
+    {
+      "success": false,
+      "errors": [
+        {
+          "msg": "Invalid RideId",
+          "param": "rideId",
+          "location": "body"
+        },
+        {
+          "msg": "Invalid OrderId",
+          "param": "razorpayOrderId",
+          "location": "body"
+        }
+      ]
+    }
+    ```
+
+- **404 Not Found**
+
+  - **Description:** Ride not found.
+  - **Response Body:**
+    ```json
+    {
+      "success": false,
+      "message": "Ride not found"
+    }
+    ```
+
+- **500 Internal Server Error**
+
+  - **Description:** An error occurred while verifying the payment.
+  - **Response Body:**
+    ```json
+    {
+      "success": false,
+      "message": "Server Error"
+    }
+    ```
+
+### Example Request
+
+```bash
+curl -X POST http://localhost:8080/api/v1/payment/verify-payment \
+ -H "Content-Type: application/json" \
+ -d '{
+       "rideId": "ride_id",
+       "razorpayOrderId": "order_id",
+       "razorpayPaymentId": "payment_id",
+       "razorpaySignature": "signature"
+     }'
+```
