@@ -1,4 +1,4 @@
-# Uber Clone
+# Quick Ryde
 
 A full-stack application that replicates the core functionalities of the Uber platform, including user authentication, ride booking, real-time location tracking, and more.
 
