@@ -2,9 +2,7 @@ const Razorpay = require("razorpay");
 const { validationResult } = require("express-validator");
 const crypto = require("crypto");
 const Ride = require("../models/ride.model");
-const { sendMessageToSocketId } = require("../socket"); // adjust path as needed
-const User = require("../models/user.model");
-const Captain = require("../models/captain.model");
+const { sendMessageToSocketId, getSocketIds } = require("../socket"); // adjust path as needed
 
 const instance = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -67,12 +65,13 @@ module.exports.verifyOrder = async (req, res) => {
     const ride = await Ride.findByIdAndUpdate(
       rideId,
       {
+        status: "completed",
         paymentId: razorpayPaymentId,
         orderId: razorpayOrderId,
         signature: razorpaySignature,
       },
       { new: true }
-    );
+    ).populate("user");
 
     if (!ride) {
       return res
@@ -80,25 +79,23 @@ module.exports.verifyOrder = async (req, res) => {
         .json({ success: false, message: "Ride not found" });
     }
 
-    // Step 4: Fetch user and captain socket IDs
-    const user = await User.findById(ride.user);
-    const captain = await Captain.findById(ride.captain);
-
     // Step 5: Emit "payment-verified" event to user
-    if (user?.socketId) {
-      sendMessageToSocketId(user.socketId, {
+    const sockets = getSocketIds(ride.user._id.toString());
+    sockets.forEach((socket) => {
+      sendMessageToSocketId(socket, {
         event: "payment-verified",
-        data: { rideId, message: "Payment verified, navigate to home" },
+        data: { ride, message: "Payment verified, navigate to home" },
       });
-    }
+    });
 
     // Step 6: Emit "payment-verified" event to captain
-    if (captain?.socketId) {
-      sendMessageToSocketId(captain.socketId, {
+    const captainSockets = getSocketIds(ride.captain._id.toString());
+    captainSockets.forEach((captainSocket) => {
+      sendMessageToSocketId(captainSocket, {
         event: "payment-verified",
-        data: { rideId, message: "Payment verified, show popup" },
+        data: { ride, message: "Payment verified, show popup" },
       });
-    }
+    });
 
     // Step 7: Respond to frontend
     res.status(200).json({ success: true, message: "Payment verified", ride });

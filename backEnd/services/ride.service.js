@@ -1,6 +1,6 @@
 const Captain = require("../models/captain.model");
 const rideModel = require("../models/ride.model");
-const { sendMessageToSocketId } = require("../socket");
+const { sendMessageToSocketId, getSocketIds } = require("../socket");
 const mapService = require("./maps.service");
 const crypto = require("crypto");
 
@@ -99,9 +99,10 @@ const confirmRide = async (captainId, rideId) => {
 
 const startRide = async (rideId, otp, captainId) => {
   if (!rideId || !otp || !captainId) {
-    throw new Error("Ride ID and OTP and CaptainId are required");
+    throw new Error("Ride ID, OTP, and Captain ID are required");
   }
 
+  // Update captain status
   await Captain.findByIdAndUpdate(captainId, {
     status: "active",
   });
@@ -111,6 +112,7 @@ const startRide = async (rideId, otp, captainId) => {
     .select("+otp")
     .populate("user")
     .populate("captain");
+
   if (!ride) {
     throw new Error("Ride not found");
   }
@@ -118,17 +120,21 @@ const startRide = async (rideId, otp, captainId) => {
   if (ride.otp !== otp) {
     throw new Error("Invalid OTP");
   }
+
+  // Update ride status
   await rideModel.findByIdAndUpdate(
     rideId,
-    {
-      status: "ongoing",
-    },
+    { status: "ongoing" },
     { new: true }
   );
 
-  sendMessageToSocketId(ride.user.socketId, {
-    event: "ride-started",
-    data: ride,
+  // Send socket message to user
+  const passengerSocketIds = getSocketIds(ride.user._id.toString());
+  passengerSocketIds.forEach((socketId) => {
+    sendMessageToSocketId(socketId, {
+      event: "ride-started",
+      data: ride,
+    });
   });
 
   return ride;
@@ -144,6 +150,7 @@ const endRide = async (rideId, captainId) => {
       .findOne({ _id: rideId, captain: captainId })
       .populate("user")
       .populate("captain");
+
     if (!ride) {
       throw new Error("Ride not found");
     }
@@ -160,9 +167,12 @@ const endRide = async (rideId, captainId) => {
       status: "inactive",
     });
 
-    sendMessageToSocketId(ride.user.socketId, {
-      event: "ride-completed",
-      data: ride,
+    const sockets = getSocketIds(ride.user._id.toString());
+    sockets.forEach((socketId) => {
+      sendMessageToSocketId(socketId, {
+        event: "ride-completed",
+        data: ride,
+      });
     });
 
     return ride;
