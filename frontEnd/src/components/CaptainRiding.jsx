@@ -1,16 +1,17 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { MdKeyboardArrowUp } from "react-icons/md";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useGSAP } from "@gsap/react";
 import FinishRide from "./FinishRide";
 import gsap from "gsap";
 import LiveTracking from "./LiveTracking";
 import { useSelector } from "react-redux";
+import { SocketContext } from "../context/SocketContext";
+import { toast } from "sonner";
 
 const CaptainRiding = () => {
-  // const location = useLocation();
-  const ride = useSelector((state) => state.ride.ride.ride);
+  const ride = useSelector((state) => state.ride?.ride?.ride);
 
   const handleLogOut = () => {
     console.log("LOG_OUT");
@@ -18,6 +19,8 @@ const CaptainRiding = () => {
   const [finishRidePanel, setFinishRidePanel] = useState(false);
 
   const finishRidePanelRef = useRef(null);
+
+  const { paymentStatus } = useContext(SocketContext);
 
   useGSAP(
     function () {
@@ -33,6 +36,20 @@ const CaptainRiding = () => {
     },
     [finishRidePanel]
   );
+
+  useEffect(() => {
+    if (paymentStatus) {
+      toast.success(
+        <span style={{ color: "green" }}>
+          {`Successful Payment of ₹${paymentStatus.fare} for user ${
+            paymentStatus.user.fullName.firstName +
+            " " +
+            paymentStatus.user.fullName.lastName
+          }`}
+        </span>
+      );
+    }
+  }, [paymentStatus]);
 
   return (
     <div className="h-screen">

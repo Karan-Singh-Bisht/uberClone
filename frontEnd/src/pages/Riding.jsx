@@ -1,23 +1,35 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useContext } from "react";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import useSocket from "../hooks/useSocket";
 import LiveTracking from "../components/LiveTracking";
 import { createPayment, verifyPayment } from "../state/Payment/paymentSlice";
+import CaptainLiveTracking from "../components/CaptainLiveTracking";
+import { SocketContext } from "../context/SocketContext";
 
 const Riding = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const ride = location.state?.ride;
   const dispatch = useDispatch();
-  const socket = useSocket(ride.user._id, "user");
 
   const [paymentPanel, setPaymentPanel] = useState(false);
   const paymentPanelRef = useRef(null);
   const [paymentStatus, setPaymentStatus] = useState("pending"); // pending, success, failed
+  const [captainLocation, setCaptainLocation] = useState(null);
+  const { socket } = useContext(SocketContext);
+
+  if (!socket) return;
+
+  const userId = ride.user._id;
+
+  useEffect(() => {
+    socket.emit("join", { userId, userType: "user" });
+  }, []);
+
+  console.log(captainLocation);
 
   const { payment, loading } = useSelector((state) => state.payment);
 
@@ -143,7 +155,8 @@ const Riding = () => {
       </div>
 
       <div className="h-4/5 flex gap-4">
-        <LiveTracking />
+        {/* <LiveTracking /> */}
+        <CaptainLiveTracking />
       </div>
 
       <div className="h-1/5 relative p-6 bg-yellow-400 flex flex-col items-center justify-center">

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserProfile, logOut } from "../state/Auth/userAuthSlice";
@@ -13,8 +13,8 @@ import DriverDetails from "../components/DriverDetails";
 import { RxCross2 } from "react-icons/rx";
 import { getAutoCompleteSuggestion } from "../state/map/mapSlice";
 import { debounce } from "lodash";
-import useSocket from "../hooks/useSocket";
 import LiveTracking from "../components/LiveTracking";
+import { SocketContext } from "../context/SocketContext";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ const HomePage = () => {
   const dispatch = useDispatch();
   const locations = useSelector((state) => state.map.autoCompleteSuggestions);
   const userId = useSelector((state) => state.userAuth?.user?._id);
-  const socket = useSocket(userId, "user");
+  const { socket } = useContext(SocketContext);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -70,11 +70,11 @@ const HomePage = () => {
   });
 
   socket.on("ride-started", (ride) => {
-    navigate("/riding", {
-      state: {
-        ride: ride,
-      },
-    });
+    // navigate("/riding", {
+    //   state: {
+    //     ride: ride,
+    //   },
+    // });
     setFindingDriver(false);
     setDriverDetail(false);
   });

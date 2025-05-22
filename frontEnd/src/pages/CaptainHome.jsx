@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -12,8 +12,8 @@ import RidePopUp from "../components/RidePopUp";
 import ConfirmRidePopUp from "../components/ConfirmRidePopUp";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { useSelector } from "react-redux";
-import useSocket from "../hooks/useSocket";
 import { confirmRide } from "../state/ride/rideSlice";
+import { SocketContext } from "../context/SocketContext";
 
 const CaptainHome = () => {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ const CaptainHome = () => {
   const confirmRidePopupPanelRef = useRef(null);
   const [ride, setRide] = useState({});
   const captainId = useSelector((state) => state?.captainAuth?.captain?._id);
-  const socket = useSocket(captainId, "captain");
+  const { socket } = useContext(SocketContext);
 
   const handleLogOut = async () => {
     try {
@@ -58,34 +58,6 @@ const CaptainHome = () => {
   useEffect(() => {
     if (!captainId) return;
     socket.emit("join", { userId: captainId, userType: "captain" });
-
-    socket.on("error", (error) => {
-      console.error("Socket error:", error);
-    });
-
-    const updateLocation = () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          const { latitude, longitude } = position.coords;
-
-          socket.emit("updateCaptainLocation", {
-            userId: captainId,
-            location: {
-              type: "Point",
-              coordinates: [longitude, latitude], // [lng, lat] order as per GeoJSON
-            },
-          });
-        });
-      }
-    };
-
-    const locationInterval = setInterval(updateLocation(), 10000);
-
-    return () => {
-      socket.off("rideResponse");
-      socket.off("error");
-      // clearInterval(locationInterval);
-    };
   }, [captainId]);
 
   socket.on("new-ride", (data) => {

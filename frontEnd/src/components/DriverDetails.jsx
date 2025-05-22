@@ -7,13 +7,7 @@ import {
   MdOutlineStarPurple500,
 } from "react-icons/md";
 
-const DriverDetails = ({
-  ride,
-  setDriverDetail,
-  setFindingDriver,
-  setVehiclePanel,
-  setConfirmRide,
-}) => {
+const DriverDetails = ({ ride, setDriverDetail }) => {
   return (
     <div>
       <div className="text-2xl translate-x-1/2 text-gray-400">
