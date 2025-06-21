@@ -44,7 +44,7 @@ const SocketProvider = ({ children }) => {
       socket.off("connect");
       socket.off("disconnect");
       socket.off("ride-started");
-      // socket.off("payment-verified");
+      socket.off("payment-verified");
       // socket.off("captainLocationUpdate");
     };
   }, []);

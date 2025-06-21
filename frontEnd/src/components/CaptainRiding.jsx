@@ -36,17 +36,33 @@ const CaptainRiding = () => {
     },
     [finishRidePanel]
   );
-
   useEffect(() => {
     if (paymentStatus) {
       toast.success(
-        <span style={{ color: "green" }}>
-          {`Successful Payment of ₹${paymentStatus.fare} for user ${
-            paymentStatus.user.fullName.firstName +
-            " " +
-            paymentStatus.user.fullName.lastName
-          }`}
-        </span>
+        (t) => (
+          <span style={{ color: "green" }}>
+            {`Successful Payment of ₹${paymentStatus.fare} for user ${
+              paymentStatus.user.fullName.firstName +
+              " " +
+              paymentStatus.user.fullName.lastName
+            }`}
+            <button
+              onClick={() => toast.dismiss(t)}
+              style={{
+                marginLeft: "1rem",
+                color: "blue",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              Dismiss
+            </button>
+          </span>
+        ),
+        {
+          duration: 3000,
+        }
       );
     }
   }, [paymentStatus]);

@@ -17,7 +17,16 @@ const CaptainLiveTracking = () => {
         center={captainLocation} // fallback: India center
         zoom={15}
       >
-        {captainLocation && <Marker position={captainLocation} />}
+        {captainLocation && (
+          <Marker
+            position={captainLocation}
+            icon={{
+              url: "/uberBike.webp", // bike icon
+              scaledSize: new window.google.maps.Size(40, 40), // resize icon
+              anchor: new window.google.maps.Point(20, 20), // center the icon
+            }}
+          />
+        )}
       </GoogleMap>
     </LoadScript>
   );

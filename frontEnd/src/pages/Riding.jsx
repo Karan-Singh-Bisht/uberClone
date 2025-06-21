@@ -29,8 +29,6 @@ const Riding = () => {
     socket.emit("join", { userId, userType: "user" });
   }, []);
 
-  console.log(captainLocation);
-
   const { payment, loading } = useSelector((state) => state.payment);
 
   useEffect(() => {

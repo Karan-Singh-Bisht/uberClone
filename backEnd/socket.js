@@ -42,7 +42,6 @@ const initializeSocket = (server) => {
       );
     });
 
-    // Step 2: Captain updates their own location in DB
     socket.on("updateCaptainLocation", async ({ userId, location }) => {
       if (
         !location ||
@@ -54,7 +53,6 @@ const initializeSocket = (server) => {
       }
 
       try {
-        console.log(userId);
         const updatedCaptain = await Captain.findByIdAndUpdate(
           userId,
           { location },
