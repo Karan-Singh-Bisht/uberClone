@@ -14,10 +14,10 @@ app.use(cors("*"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-cron.schedule("*/5 * * * *", () => {
-  exec("curl https://quickryde.onrender.com");
-  console.log("Corn running....");
-});
+// cron.schedule("*/5 * * * *", () => {
+//   exec("curl https://quickryde.onrender.com");
+//   console.log("Corn running....");
+// });
 
 const userRouter = require("./routes/user.routes");
 const captainRouter = require("./routes/captain.routes");
